@@ -1,0 +1,4 @@
+replay_criterion,acceptance_rate,num_accepted,baseline_ctr,baseline_ndcg,ede_ctr,ede_ndcg,delta_ctr,delta_ctr_ci_lo,delta_ctr_ci_hi,delta_ndcg,delta_ndcg_ci_lo,delta_ndcg_ci_hi
+Replay-Exact-Match,0.768857,46981,0.147311,0.694737,0.147311,0.694737,0.000000,,,0.000000,,
+Replay-Set-Match,0.774110,47302,0.147161,0.695531,0.147161,0.695530,0.000000,,,-0.000001,,
+Replay-Click-Preservation,0.994698,60781,0.141921,0.709040,0.144769,0.710061,0.002848,0.002848,0.002848,0.001021,0.001021,0.001021

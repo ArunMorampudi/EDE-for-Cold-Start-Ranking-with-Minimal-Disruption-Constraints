@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# Virtual environments
+.venv/
+
+# Misc
+.ipynb_checkpoints/
+.DS_Store
+
+# Kaggle credentials
+.kaggle/
