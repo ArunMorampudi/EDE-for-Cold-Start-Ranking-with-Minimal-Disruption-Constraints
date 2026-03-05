@@ -94,7 +94,7 @@ Replay validation includes monitoring mean position change (target ≈ 0.66) and
 ## Requirements
 
 ### Python
-- Python 3.8+
+- Python 3.11+
 
 ### Core libraries
 - numpy
