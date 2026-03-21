@@ -8,7 +8,7 @@ Repository: `EDE-for-Cold-Start-Ranking-with-Minimal-Disruption-Constraints` (br
 
 ## Title
 
-**Entropy-Driven Exploration for Cold-Start Ranking with Minimal-Disruption Constraints**
+**Entropy-driven exploration for cold-start ranking with minimal-disruption constraints**
 
 ---
 
