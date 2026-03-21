@@ -1,4 +1,4 @@
-# Entropy-Driven Exploration for Cold-Start Ranking with Minimal-Disruption Constraints
+# Entropy-driven exploration for cold-start ranking with minimal-disruption constraints
 
 Reproducible experimental pipeline for **Entropy-Driven Exploration (EDE)** — a safe-prefix reranking algorithm for discovering cold-start documents in ranked search while keeping disruption to existing ranking quality minimal.
 
