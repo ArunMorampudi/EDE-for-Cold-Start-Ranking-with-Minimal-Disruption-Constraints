@@ -1,0 +1,121 @@
+Reviewer: Qusai Shambour
+Basic reporting
+1. The introduction explains the cold-start exposure problem effectively: new or recently updated documents lack interaction history, are under-ranked, and therefore receive fewer opportunities to collect feedback. This feedback-loop framing is appropriate and relevant to search, recommendation, and product-ranking systems.
+2. The manuscript positions EDE as a lightweight reranking layer that can be attached to a fixed production ranker while preserving a safe prefix and limiting exploration to controlled tail positions. This is a useful framing, but the authors should more explicitly distinguish EDE from prior safe reranking methods such as BubbleRank, constrained bandit approaches, exposure-constrained ranking, and diversification-based reranking. The current discussion explains the general distinction, but it would be stronger if it included a direct comparison table or paragraph describing differences in assumptions, optimization objective, feedback requirements, and disruption guarantees.
+3. The manuscript cites appropriate literature on cold start, feature priors, bandit ranking, exposure fairness, and click models. However, because the paper relies partly on offline replay, it should engage more deeply with counterfactual learning-to-rank, off-policy evaluation, intervention harvesting, propensity-scored evaluation, and conservative exploration in recommender systems. This would better contextualize the Yandex replay analysis and clarify what can and cannot be concluded from logged click data.
+4. The simulation experiments evaluate cold-start discovery directly, whereas the Yandex replay primarily evaluates whether EDE behaves conservatively under logged click sessions. The authors do acknowledge that the public Yandex logs lack ground-truth cold-start labels, but the abstract, discussion, and conclusion should repeatedly make clear that the real-log replay supports minimal-disruption behavior, not direct real-world cold-start discovery effectiveness.
+5. Figure 1 communicates the discovery-quality trade-off, Figure 2 shows an operating frontier, Figure 3 examines robustness across click models, and Figure 4 reports replay diagnostics. However, the captions should specify parameter settings, number of seeds or sessions, whether error bars are standard deviations or confidence intervals, and the sample size behind each plot. This would make the visual results easier to interpret without repeatedly consulting the methods section.
+6. Phrases such as “significantly accelerates” should be used only if formal statistical tests are reported. Otherwise, I recommend using descriptive language such as “substantially increased new-document coverage in simulation” or “improved discovery metrics across the tested synthetic settings”. This would align the claims more closely with the evidence provided.
+
+Experimental design
+1. The simulator is appropriate as an initial test bed because it allows the authors to control cold-start difficulty, click behavior, and relevance. However, the manuscript should be more explicit that the main evidence for improved cold-start discovery comes from this controlled synthetic setting, while the real-log analysis serves a narrower diagnostic purpose.
+2. The manuscript states that query-document relevance is derived from cosine similarity of normalized embeddings and that new documents are explicitly marked as cold-start items. However, the authors should report the embedding dimensionality, number of queries, number of documents, number of new documents, number of relevant documents per query, session horizon, click-trial schedule, and the exact procedure for generating or sampling embeddings.
+3. The authors threshold continuous relevance scores and then adjust top and bottom items to ensure exactly nrel relevant items per query. This stabilizes comparisons, but it may also impose an artificial relevance distribution. I suggest adding sensitivity experiments in which the number of relevant documents varies naturally across queries, or at least explaining why the fixed-nrel setup does not materially favor EDE.
+4. The manuscript describes a fixed base ranker using noisy true relevance and also refers to an off-the-shelf learning-to-rank model such as gradient-boosted decision trees. If the experiments do not actually train an LTR model, the text should avoid implying that such a model was implemented. A clearer description would distinguish the simulated base ranker from production LTR systems that EDE is intended to approximate or augment.
+5. The method depends on exploration strength, novelty weight, safe-prefix length, candidate pool size, smoothing constants, novelty decay, and cold-start penalties. The sensitivity analyses over some parameters are useful, but the default operating points should be justified more systematically. Ideally, the authors should define a validation protocol for choosing these values and then report final results on held-out simulation conditions.
+6. Binary click entropy is highest when estimated click probability is near 0.5, but this may reflect uncertainty, mixed intent, position bias, or noisy feedback. The authors should explain why entropy is expected to identify useful cold-start candidates rather than merely ambiguous candidates. An ablation comparing novelty-only, entropy-only, unrefined entropy, and full EDE would directly support the proposed scoring design.
+7. Testing position-biased, cascade, and noisy click models is a strength. However, because EDE learns from clicks, the authors should also test stronger position-bias settings, heterogeneous query intents, navigational queries, sparse-query regimes, and delayed feedback. These would better reflect the conditions under which click entropy may become unreliable.
+8. The manuscript refers to exact-match, set-match, and click-preservation filters, but the acceptance logic should be formalized. The authors should report how sessions were selected, how candidate documents were mapped, how clicks were preserved, how many sessions remained under each filter, and whether accepted sessions differ from rejected sessions. Without this information, it is difficult to assess the representativeness of the replay results.
+9. The methods state that simulation metrics were averaged over 20 seeds and that replay metrics used bootstrap 95% confidence intervals. These uncertainty estimates should be shown consistently in the tables and figures for coverage, NDCG@10, time-to-first-click, unique new documents shown, CTR@10, click-NDCG@10, and position-change diagnostics.
+
+Validity of the findings
+1. The reported improvements in new-document coverage and time-to-first-click are substantial, especially at moderate difficulty levels. However, the authors should frame these as simulator-based findings rather than direct evidence of real-system effectiveness.
+2. It is plausible that EDE improves both discovery and NDCG if the baseline ranker is systematically penalizing relevant new items. However, the authors should verify that this result is not driven by how the cold-start penalty is imposed in the simulator. Additional diagnostics showing the relevance distribution of promoted new documents would help establish that EDE is recovering genuinely relevant items rather than benefiting from a favorable simulator design.
+3. Safe-prefix preservation and small position changes are useful indicators, but disruption can also be measured using rank-biased overlap, Kendall tau distance, per-query worst-case NDCG loss, changes in top-k relevance distribution, and the fraction of queries exceeding a predefined degradation threshold. These metrics would make the “minimal-disruption” argument more convincing.
+4. The replay analysis shows that EDE can operate as a stable tail-reranking policy under strict acceptance filters. This is useful deployment-oriented evidence. However, because the logs do not provide ground-truth cold-start labels, the replay cannot establish that EDE discovers relevant new documents in real traffic. The authors should maintain this distinction throughout the paper.
+5. Accepted sessions are partly defined by the fact that clicked results are preserved, so engagement changes computed on accepted sessions may not generalize to rejected sessions or to live traffic. I recommend reporting characteristics and metrics for rejected sessions as well, including how often EDE would have moved clicked documents and whether such movements were concentrated in particular query/session types.
+6. Random tail injection and ε-greedy exploration are helpful sanity checks, but stronger baselines are needed to isolate EDE’s contribution. The authors should compare against novelty-only reranking, entropy-only reranking, simple recency boosting, UCB-style exploration, Thompson sampling, local-swap reranking similar to BubbleRank, and exposure-constrained reranking. These comparisons would clarify whether the gains come from entropy, novelty, gating, safe-prefix preservation, or the general act of boosting new items.
+7. The paper should include ablations for safe prefix, candidate gating, novelty decay, entropy refinement/grace period, Laplace smoothing, base-score normalization, and cold-start penalty. This is particularly important because the manuscript’s stated contribution is the combination of uncertainty, novelty, and minimal-disruption constraints.
+8. The manuscript frequently states that EDE “significantly” improves discovery. If the authors intend statistical significance, they should report the relevant tests, confidence intervals, and correction strategy. Otherwise, descriptive terms such as “substantially,” “consistently,” or “in the tested settings” would be more appropriate.
+9. A well-supported conclusion is that EDE is a lightweight constrained reranking heuristic that improves cold-start discovery in a calibrated simulator and exhibits conservative position-change behavior in offline replay. Claims that it is “low-risk” for deployment should be qualified as requiring online A/B testing or stronger counterfactual evaluation.
+
+Additional comments
+1. The authors mention that the simulator is simplified, the base ranker is stationary, and real behavior may differ from click-model assumptions. They should also explicitly state that the Yandex replay does not contain cold-start ground truth and that accepted-session replay results may be affected by selection bias.
+2. A natural next step would be off-policy evaluation using randomized exploration logs, inverse-propensity scoring, doubly robust estimators, or interleaving experiments, followed by an online A/B test with guardrail metrics such as CTR, abandonment, dwell time, complaint rate, and long-term discovery.
+3. Fixed exploration strength, novelty weight, novelty decay, and safe-prefix length may not work uniformly across query types. Future versions of EDE could adapt these parameters based on query frequency, ranker confidence, observed traffic volume, item category, or risk tolerance.
+4. Real ranking systems include new items, updated items, new providers, new query-item pairs, seasonal content, and potentially low-quality or adversarial new documents. Evaluating these cases would clarify when entropy-driven exploration is beneficial and when it may require stronger safeguards.
+5. The manuscript cites exposure fairness work and discusses provider-side inequities, but it does not report fairness metrics. If the authors wish to keep this framing, they should measure exposure distribution across new and established items, provider groups, or item categories.
+
+_____________________________________________________________________________________________________________________
+
+Reviewer 2
+Basic reporting
+1. Literature gap: novelty framing needs repositioning against uncited recent work on safe/exposure-risk-based reranking, item-centric cold-start exploration, and cascading-bandit reward extensions — add explicit differentiation in Introduction/Related Work.
+
+2. Equations (Sec. 3.1–3.4): mathematically correct but unnumbered and never cross-referenced — number them given eight distinct formulas. a, b (click model), τ, and n_rel are defined only symbolically — state the actual values used (e.g., τ=50, per your own repo defaults), matching the specificity already given for λ, η, m, top_L, α.
+
+3. Table 2's repeated all-zero "Baseline" rows per penalty are redundant — state once, pivot to a wide format (penalty rows × strategy columns). Tables 3–6 share one η×m grid differing only by metric/penalty — merge into a single table with (a)–(d) sub-panels. Also include p=0.40 — the sharpest baseline-vs-EDE transition point, present in your artifacts but not the manuscript.
+
+4. Figure presentation/uniformity: standardize DPI across all figure-generation scripts (currently 160/200/300), unify marker shapes and color-to-strategy mapping across every multi-series figure, add explicit (a)/(b) panel labels directly in-figure rather than relying on captions, unify axis-label/legend font sizes, and fix the overlapping λ=0.05/0.10 point labels in Fig. 2.
+
+5.Data Availability, Conflict-of-Interest, and Funding statements are not visible in the manuscript body — confirm filed via portal or add to text. The Sec. 3.6 AI-use disclosure reads narrower in scope than the supplementary prompt log suggests (code-generation assistance spans most analysis modules) — recalibrate the wording.
+
+6. Two reference entries (NeurIPS proceedings, textbook) carry a URL but no DOI — confirm acceptable under journal style.
+
+Experimental design
+Scope: squarely within PeerJ CS aims (AI Application/Research Article) — no concern.
+
+1. Reproducibility link (Sec. 3.5): the repository DOI is an invisible hyperlink under "here" — state the DOI/URL as visible text.
+
+2. Python/hardware are specified but package versions (NumPy/SciPy/etc.) are not pinned — add a dependency list.
+
+3. "Grace period" and "hard-mode" (Sec. 3.3) are defined only qualitatively — give numeric definitions.
+
+4. Sensitivity sweep (Tables 3–6) stops at η=0.65, which is also the tuned operating point's own value — extend the range to confirm gains aren't still rising.
+
+5. Table 1's tuned point uses m=1 while the Fig. 1 difficulty sweep uses m=2 "for quality stability" — clarify why the two headline results use non-matching settings.
+
+6.The real-log replay (Sec. 4.6) is a valuable safety check, but by the paper's own note that Yandex logs lack cold-start ground truth, it demonstrates warm-start minimal-disruption rather than cold-start discovery — reframe the section (and any title/intro claims) to state this scope explicitly.
+
+Validity of the findings
+1. Tables 1–2 report only point-estimate deltas though Sec. 3.4 promises mean±SD, and your own artifacts already contain per-config SD (roughly 4× the reported ΔNDCG) — add variance/CI and a paired significance test so readers can judge whether the NDCG differences are real.
+
+2. Same gap applies to the real-log replay (Sec. 4.6/Fig. 4): bootstrap 95% CIs are stated as used (Sec. 3.5) but not shown for the reported position-change/engagement deltas — report them.
+
+3. Sec. 4.6 states ≈97% click-preservation acceptance; Fig. 4's corresponding bar reads visually closer to ~99–100% — confirm the exact value matches the figure.
+
+4. An EDE-Unsmooth (α=0) ablation is run across all conditions in your supplementary materials/results but never reported — include it or state why it's excluded; it is the most direct test of whether smoothing itself matters.
+
+Additional comments
+1. Simulation design (20 seeds, 3 click models, operating-point sweep) is methodologically solid — a genuine strength.
+
+2. Minor language polish throughout; keep figure-caption punctuation consistent.
+
+_____________________________________________________________________________________________________________________
+Reviewer 3
+Basic reporting
+Paper is interesting and reasonably well executed, but not yet fully convincing as a research contribution. My comments below:
+
+Introduction:
+1. Unnecessary repetition in Intro - “Fixed base ranker,” “minimal disruption,” “deployment-oriented,” and “safe prefix/candidate gating” are repeated several times - refine this section
+2. 1. Since the Yandex component is an offline replay analysis, “real-time” could sound stronger than what you actually demonstrate. Consider saying “recent click signals” or “online-available click signals.”
+3. Novelty is not sufficiently established, especially against recent cold-start and safe-reranking work.
+4. Old citations used throughout the paper - Most are 2002–2021, no recent work after 2022. For a paper making claims about current cold-start search, online exploration, and safe reranking, that is not sufficient. More importantly, there are directly relevant recent papers that materially overlap with the paper's problem - For example, Shiino et al. (2023), published at SIGIR 2023, specifically studies safe online learning-to-rerank with exploration of unranked items. I am therefore not convinced of the problem statement, as well as contribution. There are a few studies in 2025 too
+5.cold-start literature and safe-ranking literature are somewhat disconnected - The section presents them as separate streams, but the paper's actual novelty lies at their intersection
+6. Method - equations need to be cited – citations style not consistent and outdated
+7.TTF needs a clear experimental definition. “Number of simulated timesteps until the first click” depends heavily on how sessions, queries, impressions, and timesteps are constructed. This is not sufficiently specified in the current description.
+8. You keep saying "significant" but no statistical comparison done to support this
+9.The major concern is methodological clarity and reproducibility, particularly the inconsistency between the mathematically defined noisy relevance ranker and the statement that an off-the-shelf LTR model is used. The gating mechanism and some parameter definitions are also insufficiently specific
+10. Tables and figures – show insert Table in main paper – how to check like this when tables are not mentioned in the paper at all?
+11.Results are reasonably comprehensive, but the evidence is not as rigorous as the claims suggest
+12.Baseline selection is somewhat weak: random injection and ε-greedy are simple; given the paper’s emphasis on safe reranking, a stronger safety-aware comparator would strengthen the claims.
+13. Tuning/evaluation separation is unclear: it is not obvious whether λ selection and final evaluation use independent data/seeds.
+14. Look into writing style especially for Methodogy - the section itself does not begin in a proper way - insert an introduction to main sections throughout the paper to improve fluidity
+15. Discussion - two paragraphs only?? Too short - nothing much is discussed, compare with previous studies and elaborate on what worked and what did not
+16. Limitations should not be part of discussion; limitations are somewhat too focused on the simulator - explain other limitions
+17.The real-data evaluation does not actually measure cold-start discovery, because the Yandex logs lack ground-truth cold-start labels. It mainly evaluates reranking/disruption behavior. - limitation???
+18.The Conclusion is too repetitive and somewhat overstated.
+16.
+
+These are independent researchers - not sure if this info is relevant.
+
+**PeerJ Staff Note:** It is PeerJ policy that additional references suggested during the peer-review process should only be included if the authors are in agreement that they are relevant and useful.
+
+Experimental design
+See above
+
+Validity of the findings
+See above
+
+Additional comments
+See above
