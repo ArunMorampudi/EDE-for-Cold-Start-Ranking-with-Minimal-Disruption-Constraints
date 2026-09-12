@@ -1,0 +1,14 @@
+{
+  "lines": 941341,
+  "unmatched_clicks": 0,
+  "excluded_test_pages": 0,
+  "invalid_pages": 0,
+  "raw_sessions": 200000,
+  "pages": 372282,
+  "input_name": "train_first_200000_sessions.txt",
+  "lambda_value": 0.4,
+  "bootstrap": 2000,
+  "bootstrap_unit": "session",
+  "bootstrap_seed": 20260911,
+  "limitations": "Ten-candidate logged-support diagnostic only; set/click preservation structural; no cold-start labels or propensity weights"
+}
