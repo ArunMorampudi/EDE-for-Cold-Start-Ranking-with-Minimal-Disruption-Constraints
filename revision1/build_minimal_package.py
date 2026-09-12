@@ -266,6 +266,25 @@ def revise_manuscript() -> None:
         )
         insert_after_clean(replay_discussion, discussion_addition, "Normal")
 
+    repeated_comparison = next(
+        (
+            p for p in doc.paragraphs
+            if p.text.strip().startswith(
+                "Unlike BubbleRank and Shiino et al. (2023), EDE does not learn pairwise"
+            )
+        ),
+        None,
+    )
+    if repeated_comparison is not None:
+        replace_plain_paragraph(
+            repeated_comparison,
+            "Unlike Gupta et al. (2023), EDE's prefix does not control counterfactual "
+            "deployment risk. Direct comparisons under compatible feedback remain "
+            "future work. Randomized logs could support IPS/doubly robust evaluation, "
+            "followed by interleaving or A/B tests with CTR, abandonment, dwell time, "
+            "complaints and discovery guardrails.",
+        )
+
     # Keep the output clean: no inline figures, tables, tracked changes, or
     # comments. The separate upload assets carry the visuals and table grids.
     for p in list(doc.paragraphs):
