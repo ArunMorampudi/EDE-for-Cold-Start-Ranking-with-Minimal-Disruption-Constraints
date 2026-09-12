@@ -14,3 +14,10 @@ __pycache__/
 
 # Kaggle credentials
 .kaggle/
+revision1/.deps/
+revision1/qa/
+revision1/work/
+revision1/data/*.txt
+revision1/results/replay/per_page.csv
+revision1/results/runs/
+.pytest_cache/

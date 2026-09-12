@@ -1,5 +1,24 @@
 # Entropy-driven exploration for cold-start ranking with minimal-disruption constraints
 
+## Revision one status
+
+The revised manuscript and separate upload files are in `submitted_peerj_docs/`.
+Read [revision1/README.md](revision1/README.md) for the corrected methods,
+validation/test split, new replay protocol, and reproduction commands. Install
+`revision1/requirements-revision.txt` for the revised analysis. Original submitted
+documents are preserved in `revision1/original_submitted/`.
+
+The revision found that the original simulation did not preserve the original
+base prefix and removed the cold-start penalty after gating. It also found
+page-merging, entropy and counter-update errors in the historical replay.
+The corrected analysis reports materially smaller discovery effects and does not
+support live engagement or deployment-safety claims. Historical `outputs/` and
+the original pipeline description below are retained for provenance, and must
+not be used as evidence for the revised manuscript. Use the `revision_*` modules
+and their saved results instead.
+
+## Historical submission description
+
 Reproducible experimental pipeline for **Entropy-Driven Exploration (EDE)** — a safe-prefix reranking algorithm for discovering cold-start documents in ranked search while keeping disruption to existing ranking quality minimal.
 
 Repository: `EDE-for-Cold-Start-Ranking-with-Minimal-Disruption-Constraints` (branch: `main`).

@@ -1,0 +1,522 @@
+[
+  {
+    "reviewer": 1,
+    "section": "Basic reporting",
+    "ordinal": 1,
+    "original_number": "1",
+    "comment": "The introduction explains the cold-start exposure problem effectively: new or recently updated documents lack interaction history, are under-ranked, and therefore receive fewer opportunities to collect feedback. This feedback-loop framing is appropriate and relevant to search, recommendation, and product-ranking systems.",
+    "response": "Thank you. Section 1 retains the feedback-loop motivation and removes repetitive deployment language."
+  },
+  {
+    "reviewer": 1,
+    "section": "Basic reporting",
+    "ordinal": 2,
+    "original_number": "2",
+    "comment": "The manuscript positions EDE as a lightweight reranking layer that can be attached to a fixed production ranker while preserving a safe prefix and limiting exploration to controlled tail positions. This is a useful framing, but the authors should more explicitly distinguish EDE from prior safe reranking methods such as BubbleRank, constrained bandit approaches, exposure-constrained ranking, and diversification-based reranking. The current discussion explains the general distinction, but it would be stronger if it included a direct comparison table or paragraph describing differences in assumptions, optimization objective, feedback requirements, and disruption guarantees.",
+    "response": "Section 2 now compares assumptions, objectives, feedback and guarantees of BubbleRank, Shiino et al. (2023), exposure-risk minimization, exposure-constrained ranking and diversification. EDE is positioned as an empirical heuristic with an exact prefix constraint, not a new general safety guarantee."
+  },
+  {
+    "reviewer": 1,
+    "section": "Basic reporting",
+    "ordinal": 3,
+    "original_number": "3",
+    "comment": "The manuscript cites appropriate literature on cold start, feature priors, bandit ranking, exposure fairness, and click models. However, because the paper relies partly on offline replay, it should engage more deeply with counterfactual learning-to-rank, off-policy evaluation, intervention harvesting, propensity-scored evaluation, and conservative exploration in recommender systems. This would better contextualize the Yandex replay analysis and clarify what can and cannot be concluded from logged click data.",
+    "response": "Section 2 now discusses propensity weighting, counterfactual learning-to-rank, intervention harvesting and exposure-based conservative learning. Section 3.5 explicitly explains why this replay cannot perform off-policy evaluation."
+  },
+  {
+    "reviewer": 1,
+    "section": "Basic reporting",
+    "ordinal": 4,
+    "original_number": "4",
+    "comment": "The simulation experiments evaluate cold-start discovery directly, whereas the Yandex replay primarily evaluates whether EDE behaves conservatively under logged click sessions. The authors do acknowledge that the public Yandex logs lack ground-truth cold-start labels, but the abstract, discussion, and conclusion should repeatedly make clear that the real-log replay supports minimal-disruption behavior, not direct real-world cold-start discovery effectiveness.",
+    "response": "The Abstract, Sections 1, 3.5, 4.6, 5, 6 and 7 consistently distinguish synthetic discovery evidence from the restricted logged-support diagnostic. The corrected replay does not measure real cold-start discovery."
+  },
+  {
+    "reviewer": 1,
+    "section": "Basic reporting",
+    "ordinal": 5,
+    "original_number": "5",
+    "comment": "Figure 1 communicates the discovery-quality trade-off, Figure 2 shows an operating frontier, Figure 3 examines robustness across click models, and Figure 4 reports replay diagnostics. However, the captions should specify parameter settings, number of seeds or sessions, whether error bars are standard deviations or confidence intervals, and the sample size behind each plot. This would make the visual results easier to interpret without repeatedly consulting the methods section.",
+    "response": "All four captions now state sample sizes, parameter settings and uncertainty conventions. Figures 1 and 3 show sample SD across 20 test seeds; Figure 2 shows paired 95% validation CIs; Figure 4 shows session-cluster bootstrap CIs for displacement."
+  },
+  {
+    "reviewer": 1,
+    "section": "Basic reporting",
+    "ordinal": 6,
+    "original_number": "6",
+    "comment": "Phrases such as “significantly accelerates” should be used only if formal statistical tests are reported. Otherwise, I recommend using descriptive language such as “substantially increased new-document coverage in simulation” or “improved discovery metrics across the tested synthetic settings”. This would align the claims more closely with the evidence provided.",
+    "response": "Unsupported significance language has been removed. Section 3.4 specifies paired tests and Holm correction; complete raw and corrected p-values accompany the results. Descriptive conclusions are used unless supported by the specified analysis."
+  },
+  {
+    "reviewer": 1,
+    "section": "Experimental design",
+    "ordinal": 1,
+    "original_number": "1",
+    "comment": "The simulator is appropriate as an initial test bed because it allows the authors to control cold-start difficulty, click behavior, and relevance. However, the manuscript should be more explicit that the main evidence for improved cold-start discovery comes from this controlled synthetic setting, while the real-log analysis serves a narrower diagnostic purpose.",
+    "response": "Sections 1 and 3 introduce the two evidence sources separately. The synthetic experiments are the only direct cold-start evaluation."
+  },
+  {
+    "reviewer": 1,
+    "section": "Experimental design",
+    "ordinal": 2,
+    "original_number": "2",
+    "comment": "The manuscript states that query-document relevance is derived from cosine similarity of normalized embeddings and that new documents are explicitly marked as cold-start items. However, the authors should report the embedding dimensionality, number of queries, number of documents, number of new documents, number of relevant documents per query, session horizon, click-trial schedule, and the exact procedure for generating or sampling embeddings.",
+    "response": "Section 3.1 specifies 16-dimensional standard-normal embeddings, normalization, 100 queries, 1,000 documents, 200 new documents, ten relevant documents per query, arrival at 1,000 and horizon 2,000. Section 3.2 describes one query and one trial per displayed position per timestep, with independent shared random streams."
+  },
+  {
+    "reviewer": 1,
+    "section": "Experimental design",
+    "ordinal": 3,
+    "original_number": "3",
+    "comment": "The authors threshold continuous relevance scores and then adjust top and bottom items to ensure exactly nrel relevant items per query. This stabilizes comparisons, but it may also impose an artificial relevance distribution. I suggest adding sensitivity experiments in which the number of relevant documents varies naturally across queries, or at least explaining why the fixed-nrel setup does not materially favor EDE.",
+    "response": "A naturally varying relevance condition now uses r≥0.78 without top/bottom adjustment. Section 3.4 explains the choice and Table 5/Figure 3 report outcomes. We also acknowledge the artificial fixed-top-ten labels and do not assume they cannot favor a policy."
+  },
+  {
+    "reviewer": 1,
+    "section": "Experimental design",
+    "ordinal": 4,
+    "original_number": "4",
+    "comment": "The manuscript describes a fixed base ranker using noisy true relevance and also refers to an off-the-shelf learning-to-rank model such as gradient-boosted decision trees. If the experiments do not actually train an LTR model, the text should avoid implying that such a model was implemented. A clearer description would distinguish the simulated base ranker from production LTR systems that EDE is intended to approximate or augment.",
+    "response": "The gradient-boosted LTR implementation claim is removed. Equation (1) and Section 3.1 define the actual stationary noisy relevance ranker, and distinguish it from intended production use."
+  },
+  {
+    "reviewer": 1,
+    "section": "Experimental design",
+    "ordinal": 5,
+    "original_number": "5",
+    "comment": "The method depends on exploration strength, novelty weight, safe-prefix length, candidate pool size, smoothing constants, novelty decay, and cold-start penalties. The sensitivity analyses over some parameters are useful, but the default operating points should be justified more systematically. Ideally, the authors should define a validation protocol for choosing these values and then report final results on held-out simulation conditions.",
+    "response": "Section 3.4 prespecifies lambda selection on seeds 100–109 and tests only on seeds 1000–1019. Other defaults are fixed and subjected to ablation/sensitivity, not claimed to be jointly optimized. The selection protocol is saved with the results."
+  },
+  {
+    "reviewer": 1,
+    "section": "Experimental design",
+    "ordinal": 6,
+    "original_number": "6",
+    "comment": "Binary click entropy is highest when estimated click probability is near 0.5, but this may reflect uncertainty, mixed intent, position bias, or noisy feedback. The authors should explain why entropy is expected to identify useful cold-start candidates rather than merely ambiguous candidates. An ablation comparing novelty-only, entropy-only, unrefined entropy, and full EDE would directly support the proposed scoring design.",
+    "response": "Sections 1 and 3.3 distinguish click entropy from epistemic relevance uncertainty. Novelty-only, entropy-only, unrefined and full EDE comparisons are added. Results and Discussion explicitly acknowledge that novelty-only is competitive or stronger, limiting the claimed entropy contribution."
+  },
+  {
+    "reviewer": 1,
+    "section": "Experimental design",
+    "ordinal": 7,
+    "original_number": "7",
+    "comment": "Testing position-biased, cascade, and noisy click models is a strength. However, because EDE learns from clicks, the authors should also test stronger position-bias settings, heterogeneous query intents, navigational queries, sparse-query regimes, and delayed feedback. These would better reflect the conditions under which click entropy may become unreliable.",
+    "response": "Section 3.4 adds stronger position bias, heterogeneous query frequency/bias, navigational relevance, sparse queries and delayed counters, in addition to cascade/noisy models. Figure 3 and Table 5 report 20-seed uncertainty. These are stylized stress tests, not validated population models."
+  },
+  {
+    "reviewer": 1,
+    "section": "Experimental design",
+    "ordinal": 8,
+    "original_number": "8",
+    "comment": "The manuscript refers to exact-match, set-match, and click-preservation filters, but the acceptance logic should be formalized. The authors should report how sessions were selected, how candidate documents were mapped, how clicks were preserved, how many sessions remained under each filter, and whether accepted sessions differ from rejected sessions. Without this information, it is difficult to assess the representativeness of the replay results.",
+    "response": "Section 3.5 formalizes all three filters and fully specifies the new log-prefix sample and page/document mapping. The original parser merged result pages; the corrected parser preserves page IDs and event ordering. Set/click preservation is now honestly identified as structural with ten logged candidates. Table 6 and supplementary replay data distinguish exact-match acceptance/rejection."
+  },
+  {
+    "reviewer": 1,
+    "section": "Experimental design",
+    "ordinal": 9,
+    "original_number": "9",
+    "comment": "The methods state that simulation metrics were averaged over 20 seeds and that replay metrics used bootstrap 95% confidence intervals. These uncertainty estimates should be shown consistently in the tables and figures for coverage, NDCG@10, time-to-first-click, unique new documents shown, CTR@10, click-NDCG@10, and position-change diagnostics.",
+    "response": "Main tables/figures show SD or CIs as labeled, and supplementary CSVs provide per-seed means, SD, CIs and paired deltas for every requested simulation metric. Replay intervals now come from actual session-cluster bootstrapping; the old disabled-bootstrap output is withdrawn."
+  },
+  {
+    "reviewer": 1,
+    "section": "Validity of the findings",
+    "ordinal": 1,
+    "original_number": "1",
+    "comment": "The reported improvements in new-document coverage and time-to-first-click are substantial, especially at moderate difficulty levels. However, the authors should frame these as simulator-based findings rather than direct evidence of real-system effectiveness.",
+    "response": "The revised results are explicitly simulator-based. The original large gains and claims of real-system effectiveness have been replaced by the smaller corrected estimates."
+  },
+  {
+    "reviewer": 1,
+    "section": "Validity of the findings",
+    "ordinal": 2,
+    "original_number": "2",
+    "comment": "It is plausible that EDE improves both discovery and NDCG if the baseline ranker is systematically penalizing relevant new items. However, the authors should verify that this result is not driven by how the cold-start penalty is imposed in the simulator. Additional diagnostics showing the relevance distribution of promoted new documents would help establish that EDE is recovering genuinely relevant items rather than benefiting from a favorable simulator design.",
+    "response": "The audit found that the old policy removed the new-document penalty after gating, unlike its baseline. The corrected comparison retains the same penalized score for both policies, and all results are rerun. Table 4 adds continuous/binary query relevance of promoted items and exposure diagnostics; p=0 is included. The original improvements cannot be attributed solely to entropy."
+  },
+  {
+    "reviewer": 1,
+    "section": "Validity of the findings",
+    "ordinal": 3,
+    "original_number": "3",
+    "comment": "Safe-prefix preservation and small position changes are useful indicators, but disruption can also be measured using rank-biased overlap, Kendall tau distance, per-query worst-case NDCG loss, changes in top-k relevance distribution, and the fraction of queries exceeding a predefined degradation threshold. These metrics would make the “minimal-disruption” argument more convincing.",
+    "response": "Table 4 and supplementary CSVs add RBO, normalized shared-document Kendall distance, worst observed query-mean NDCG delta, top-ten relevance fraction and fractions exceeding a 0.01 degradation threshold. These reveal tail losses despite exact prefix preservation."
+  },
+  {
+    "reviewer": 1,
+    "section": "Validity of the findings",
+    "ordinal": 4,
+    "original_number": "4",
+    "comment": "The replay analysis shows that EDE can operate as a stable tail-reranking policy under strict acceptance filters. This is useful deployment-oriented evidence. However, because the logs do not provide ground-truth cold-start labels, the replay cannot establish that EDE discovers relevant new documents in real traffic. The authors should maintain this distinction throughout the paper.",
+    "response": "The replay is now described throughout as a logged-support position-change diagnostic without cold-start labels. Real discovery claims are removed."
+  },
+  {
+    "reviewer": 1,
+    "section": "Validity of the findings",
+    "ordinal": 5,
+    "original_number": "5",
+    "comment": "Accepted sessions are partly defined by the fact that clicked results are preserved, so engagement changes computed on accepted sessions may not generalize to rejected sessions or to live traffic. I recommend reporting characteristics and metrics for rejected sessions as well, including how often EDE would have moved clicked documents and whether such movements were concentrated in particular query/session types.",
+    "response": "Table 6 separates exact-match accepted and rejected pages and their observed click/displacement metrics. Set/click preservation has no rejected pages because the corrected candidate set contains exactly the logged ten. This is stated as a limitation, not reported as a successful discovery/safety result. Hypothetical clicked-document shifts are retained in the summary."
+  },
+  {
+    "reviewer": 1,
+    "section": "Validity of the findings",
+    "ordinal": 6,
+    "original_number": "6",
+    "comment": "Random tail injection and ε-greedy exploration are helpful sanity checks, but stronger baselines are needed to isolate EDE’s contribution. The authors should compare against novelty-only reranking, entropy-only reranking, simple recency boosting, UCB-style exploration, Thompson sampling, local-swap reranking similar to BubbleRank, and exposure-constrained reranking. These comparisons would clarify whether the gains come from entropy, novelty, gating, safe-prefix preservation, or the general act of boosting new items.",
+    "response": "The expanded comparison includes novelty-only, entropy-only, recency, UCB-style, Thompson, adjacent local-swap and exposure-quota policies, as well as random and epsilon-greedy. All share the gate and prefix. Sections 3.4 and 6 explicitly state that these are operational heuristics, not exact implementations of BubbleRank or published constrained optimizers."
+  },
+  {
+    "reviewer": 1,
+    "section": "Validity of the findings",
+    "ordinal": 7,
+    "original_number": "7",
+    "comment": "The paper should include ablations for safe prefix, candidate gating, novelty decay, entropy refinement/grace period, Laplace smoothing, base-score normalization, and cold-start penalty. This is particularly important because the manuscript’s stated contribution is the combination of uncertainty, novelty, and minimal-disruption constraints.",
+    "response": "Table 4 adds prefix removal, gate removal, no novelty decay, unrefined entropy, alpha=0 and no rank-normalization ablations. The difficulty sweep includes no penalty. Section 3.3 corrects the nonexistent discrete grace-period description to the actual smooth exposure weighting."
+  },
+  {
+    "reviewer": 1,
+    "section": "Validity of the findings",
+    "ordinal": 8,
+    "original_number": "8",
+    "comment": "The manuscript frequently states that EDE “significantly” improves discovery. If the authors intend statistical significance, they should report the relevant tests, confidence intervals, and correction strategy. Otherwise, descriptive terms such as “substantially,” “consistently,” or “in the tested settings” would be more appropriate.",
+    "response": "Unsupported “significantly” statements are removed. Seed-level paired t tests and Holm correction are described in Section 3.4, and raw/corrected p-values are supplied for the entire stated family."
+  },
+  {
+    "reviewer": 1,
+    "section": "Validity of the findings",
+    "ordinal": 9,
+    "original_number": "9",
+    "comment": "A well-supported conclusion is that EDE is a lightweight constrained reranking heuristic that improves cold-start discovery in a calibrated simulator and exhibits conservative position-change behavior in offline replay. Claims that it is “low-risk” for deployment should be qualified as requiring online A/B testing or stronger counterfactual evaluation.",
+    "response": "The Conclusion now calls EDE a constrained reranking heuristic with conditional simulator gains and a restricted offline diagnostic. It explicitly requires stronger counterfactual and online evaluation before deployment or engagement claims."
+  },
+  {
+    "reviewer": 1,
+    "section": "Additional comments",
+    "ordinal": 1,
+    "original_number": "1",
+    "comment": "The authors mention that the simulator is simplified, the base ranker is stationary, and real behavior may differ from click-model assumptions. They should also explicitly state that the Yandex replay does not contain cold-start ground truth and that accepted-session replay results may be affected by selection bias.",
+    "response": "Section 6 separately states the missing cold-start labels, absent propensities, contiguous-prefix sampling and acceptance-selection limitations."
+  },
+  {
+    "reviewer": 1,
+    "section": "Additional comments",
+    "ordinal": 2,
+    "original_number": "2",
+    "comment": "A natural next step would be off-policy evaluation using randomized exploration logs, inverse-propensity scoring, doubly robust estimators, or interleaving experiments, followed by an online A/B test with guardrail metrics such as CTR, abandonment, dwell time, complaint rate, and long-term discovery.",
+    "response": "Section 5 discusses randomized exploration logs, IPS/doubly robust estimators, interleaving and online A/B tests with CTR, abandonment, dwell time, complaints and longer-term discovery guardrails. None is falsely claimed to have been conducted."
+  },
+  {
+    "reviewer": 1,
+    "section": "Additional comments",
+    "ordinal": 3,
+    "original_number": "3",
+    "comment": "Fixed exploration strength, novelty weight, novelty decay, and safe-prefix length may not work uniformly across query types. Future versions of EDE could adapt these parameters based on query frequency, ranker confidence, observed traffic volume, item category, or risk tolerance.",
+    "response": "Section 6 proposes query-frequency, confidence, traffic and category-sensitive parameter adaptation. Current defaults are acknowledged to be only partially selected."
+  },
+  {
+    "reviewer": 1,
+    "section": "Additional comments",
+    "ordinal": 4,
+    "original_number": "4",
+    "comment": "Real ranking systems include new items, updated items, new providers, new query-item pairs, seasonal content, and potentially low-quality or adversarial new documents. Evaluating these cases would clarify when entropy-driven exploration is beneficial and when it may require stronger safeguards.",
+    "response": "Section 6 explicitly identifies updated items, new providers, new query-item pairs, seasonality and adversarial/low-quality arrivals as untested cases requiring independent safeguards."
+  },
+  {
+    "reviewer": 1,
+    "section": "Additional comments",
+    "ordinal": 5,
+    "original_number": "5",
+    "comment": "The manuscript cites exposure fairness work and discusses provider-side inequities, but it does not report fairness metrics. If the authors wish to keep this framing, they should measure exposure distribution across new and established items, provider groups, or item categories.",
+    "response": "We add new-item discounted exposure share and top-ten new-item fraction, while removing any implication that these establish provider-group fairness. The absence of group labels and group fairness metrics is explicit in Sections 4.4 and 6."
+  },
+  {
+    "reviewer": 2,
+    "section": "Basic reporting",
+    "ordinal": 1,
+    "original_number": "1",
+    "comment": "Literature gap: novelty framing needs repositioning against uncited recent work on safe/exposure-risk-based reranking, item-centric cold-start exploration, and cascading-bandit reward extensions — add explicit differentiation in Introduction/Related Work.",
+    "response": "Sections 1–2 reposition novelty against safe unranked-item exploration (Shiino et al., 2023), exposure-risk minimization (Gupta et al., 2023), item-centric exploration (Wang et al., 2025) and stateful cascading reinforcement learning (Du et al., 2024). The differences concern feedback, objective and guarantee, not merely lightweight implementation."
+  },
+  {
+    "reviewer": 2,
+    "section": "Basic reporting",
+    "ordinal": 2,
+    "original_number": "2",
+    "comment": "Equations (Sec. 3.1–3.4): mathematically correct but unnumbered and never cross-referenced — number them given eight distinct formulas. a, b (click model), τ, and n_rel are defined only symbolically — state the actual values used (e.g., τ=50, per your own repo defaults), matching the specificity already given for λ, η, m, top_L, α.",
+    "response": "Eight equations are numbered and referenced in Section 3. Actual values a=3, b=0.35, tau=50 and n_rel=10 are stated, together with the full simulator defaults. The equation explanations now match the corrected code."
+  },
+  {
+    "reviewer": 2,
+    "section": "Basic reporting",
+    "ordinal": 3,
+    "original_number": "3",
+    "comment": "Table 2's repeated all-zero \"Baseline\" rows per penalty are redundant — state once, pivot to a wide format (penalty rows × strategy columns). Tables 3–6 share one η×m grid differing only by metric/penalty — merge into a single table with (a)–(d) sub-panels. Also include p=0.40 — the sharpest baseline-vs-EDE transition point, present in your artifacts but not the manuscript.",
+    "response": "Each numbered table is now one editable Word table in its own one-page DOCX, cited in order in Results. Table 2 retains penalty rows and strategy columns in three bands within one grid, with baseline coverage reported once. Table 3 combines the original Tables 3–6 in columns (a)–(d), with columns (e)–(f) adding p=0.40. Reviewer-requested ablations, stress tests and replay diagnostics occupy Tables 4–6; detailed numerical results remain in the archived CSVs. Table titles and explanatory notes are provided in a separate reference document for entry in the submission form; each table DOCX contains only its grid."
+  },
+  {
+    "reviewer": 2,
+    "section": "Basic reporting",
+    "ordinal": 4,
+    "original_number": "4",
+    "comment": "Figure presentation/uniformity: standardize DPI across all figure-generation scripts (currently 160/200/300), unify marker shapes and color-to-strategy mapping across every multi-series figure, add explicit (a)/(b) panel labels directly in-figure rather than relying on captions, unify axis-label/legend font sizes, and fix the overlapping λ=0.05/0.10 point labels in Fig. 2.",
+    "response": "All replacement figures are generated at 300 DPI with shared typography, fixed colors and markers, and visible panel letters. Figure 2 is regenerated with the explicitly selected validation grid and offset labels, replacing the overlapping historical lambda annotations."
+  },
+  {
+    "reviewer": 2,
+    "section": "Basic reporting",
+    "ordinal": 5,
+    "original_number": "5",
+    "comment": "Data Availability, Conflict-of-Interest, and Funding statements are not visible in the manuscript body — confirm filed via portal or add to text. The Sec. 3.6 AI-use disclosure reads narrower in scope than the supplementary prompt log suggests (code-generation assistance spans most analysis modules) — recalibrate the wording.",
+    "response": "Data Availability is added. Funding and competing-interest declarations require confirmation from both authors; neither the supplied manuscript nor repository establishes them. Section 3.6 retains the original author disclosure. The authors must verify that it accurately covers the revision and reconcile it with their supplementary AI prompt log before submission."
+  },
+  {
+    "reviewer": 2,
+    "section": "Basic reporting",
+    "ordinal": 6,
+    "original_number": "6",
+    "comment": "Two reference entries (NeurIPS proceedings, textbook) carry a URL but no DOI — confirm acceptable under journal style.",
+    "response": "Original references used by the retained manuscript are preserved. Inconsistent author-year entries are corrected, recent cited sources are added, and the TopRank proceedings entry now has its official publisher URL. The cited reinforcement-learning textbook is retained; we do not invent a DOI where one is not established."
+  },
+  {
+    "reviewer": 2,
+    "section": "Experimental design",
+    "ordinal": 1,
+    "original_number": "1",
+    "comment": "Reproducibility link (Sec. 3.5): the repository DOI is an invisible hyperlink under \"here\" — state the DOI/URL as visible text.",
+    "response": "Section 3.5 and Data Availability print https://doi.org/10.5281/zenodo.19242717 visibly as the original archive. The revision branch and exact protocol are identified separately. A new version DOI is an explicit author action; the old DOI is not presented as if it contains the revised code."
+  },
+  {
+    "reviewer": 2,
+    "section": "Experimental design",
+    "ordinal": 2,
+    "original_number": "2",
+    "comment": "Python/hardware are specified but package versions (NumPy/SciPy/etc.) are not pinned — add a dependency list.",
+    "response": "A revision-specific dependency file pins the actual numerical runtime and plotting/test packages. The invalid “-e .” requirement is removed because this repository has no package build metadata. Python-module commands run from the repository root."
+  },
+  {
+    "reviewer": 2,
+    "section": "Experimental design",
+    "ordinal": 3,
+    "original_number": "3",
+    "comment": "\"Grace period\" and \"hard-mode\" (Sec. 3.3) are defined only qualitatively — give numeric definitions.",
+    "response": "Section 3.3 specifies the smooth weighting numerically: tau=50 gives refinement weights of approximately 0.095 at five impressions and 0.632 at 50. There is no discrete grace period. Hard mode is defined by a positive pre-gating new-document penalty retained in both policies."
+  },
+  {
+    "reviewer": 2,
+    "section": "Experimental design",
+    "ordinal": 4,
+    "original_number": "4",
+    "comment": "Sensitivity sweep (Tables 3–6) stops at η=0.65, which is also the tuned operating point's own value — extend the range to confirm gains aren't still rising.",
+    "response": "Table 3 extends eta to 0.80 and 1.00 at three penalties, including 0.40. This is reported as held-out sensitivity, not a post hoc change to the selected operating point."
+  },
+  {
+    "reviewer": 2,
+    "section": "Experimental design",
+    "ordinal": 5,
+    "original_number": "5",
+    "comment": "Table 1's tuned point uses m=1 while the Fig. 1 difficulty sweep uses m=2 \"for quality stability\" — clarify why the two headline results use non-matching settings.",
+    "response": "The old mismatched m=1 headline operating point is replaced. Table 1 confirmation and Figure 1 both use m=2 and the validation-selected lambda, with any alternative m confined to sensitivity/ablation."
+  },
+  {
+    "reviewer": 2,
+    "section": "Experimental design",
+    "ordinal": 6,
+    "original_number": "6",
+    "comment": "The real-log replay (Sec. 4.6) is a valuable safety check, but by the paper's own note that Yandex logs lack cold-start ground truth, it demonstrates warm-start minimal-disruption rather than cold-start discovery — reframe the section (and any title/intro claims) to state this scope explicitly.",
+    "response": "The real-log section is now explicitly a page-level logged-support diagnostic. It does not evaluate cold-start discovery or a new-candidate insertion policy."
+  },
+  {
+    "reviewer": 2,
+    "section": "Validity of the findings",
+    "ordinal": 1,
+    "original_number": "1",
+    "comment": "Tables 1–2 report only point-estimate deltas though Sec. 3.4 promises mean±SD, and your own artifacts already contain per-config SD (roughly 4× the reported ΔNDCG) — add variance/CI and a paired significance test so readers can judge whether the NDCG differences are real.",
+    "response": "Tables now show sample SD and/or paired CIs, and the supplementary results provide all per-seed values, paired t tests and Holm-adjusted p-values. The manuscript no longer calls small NDCG deltas significant without this analysis."
+  },
+  {
+    "reviewer": 2,
+    "section": "Validity of the findings",
+    "ordinal": 2,
+    "original_number": "2",
+    "comment": "Same gap applies to the real-log replay (Sec. 4.6/Fig. 4): bootstrap 95% CIs are stated as used (Sec. 3.5) but not shown for the reported position-change/engagement deltas — report them.",
+    "response": "The archived diagnostics marked bootstrapping disabled, so the old repeated endpoints were not valid uncertainty estimates. The replay has been rerun with 2,000 session-cluster bootstrap resamples, and Table 6/Figure 4 report the resulting mean-metric intervals."
+  },
+  {
+    "reviewer": 2,
+    "section": "Validity of the findings",
+    "ordinal": 3,
+    "original_number": "3",
+    "comment": "Sec. 4.6 states ≈97% click-preservation acceptance; Fig. 4's corresponding bar reads visually closer to ~99–100% — confirm the exact value matches the figure.",
+    "response": "The historical CSV records 60,781/61,105=99.4698%, not approximately 97%. After correcting the parser, entropy and event updates, Section 4.6 reports the replacement sample and results. The new set/click acceptance is 100% by construction and is not interpreted as empirical safety evidence."
+  },
+  {
+    "reviewer": 2,
+    "section": "Validity of the findings",
+    "ordinal": 4,
+    "original_number": "4",
+    "comment": "An EDE-Unsmooth (α=0) ablation is run across all conditions in your supplementary materials/results but never reported — include it or state why it's excluded; it is the most direct test of whether smoothing itself matters.",
+    "response": "Table 4 explicitly includes alpha=0 with a finite zero-count convention. Full EDE, unsmoothed and other scoring ablations are reported with seed-level uncertainty."
+  },
+  {
+    "reviewer": 2,
+    "section": "Additional comments",
+    "ordinal": 1,
+    "original_number": "1",
+    "comment": "Simulation design (20 seeds, 3 click models, operating-point sweep) is methodologically solid — a genuine strength.",
+    "response": "Thank you. The revised design retains multiple click models and 20 test seeds, while adding independent validation, paired random streams and more stress conditions."
+  },
+  {
+    "reviewer": 2,
+    "section": "Additional comments",
+    "ordinal": 2,
+    "original_number": "2",
+    "comment": "Minor language polish throughout; keep figure-caption punctuation consistent.",
+    "response": "We preserve the original wording except where reviewer requests or the corrected evidence require a change. Figure legends consistently report parameters and uncertainty. Figure legends are supplied as a separate document."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 1,
+    "original_number": "1",
+    "comment": "Unnecessary repetition in Intro - “Fixed base ranker,” “minimal disruption,” “deployment-oriented,” and “safe prefix/candidate gating” are repeated several times - refine this section",
+    "response": "The Introduction retains its original motivation and contribution structure. Repetitive deployment language and unsupported low-risk claims are shortened or qualified, with focused additions on overlapping prior work."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 2,
+    "original_number": "2",
+    "comment": "1. Since the Yandex component is an offline replay analysis, “real-time” could sound stronger than what you actually demonstrate. Consider saying “recent click signals” or “online-available click signals.”",
+    "response": "“Real-time” is replaced with recent, online-available click signals. The real-data experiment is consistently described as offline and descriptive."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 3,
+    "original_number": "3",
+    "comment": "Novelty is not sufficiently established, especially against recent cold-start and safe-reranking work.",
+    "response": "Sections 1–2 narrow novelty to an empirical scoring/constraint combination and acknowledge the overlap with safe cold-start exploration. No first-of-its-kind or general low-risk claim remains."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 4,
+    "original_number": "4",
+    "comment": "Old citations used throughout the paper - Most are 2002–2021, no recent work after 2022. For a paper making claims about current cold-start search, online exploration, and safe reranking, that is not sufficient. More importantly, there are directly relevant recent papers that materially overlap with the paper's problem - For example, Shiino et al. (2023), published at SIGIR 2023, specifically studies safe online learning-to-rerank with exploration of unranked items. I am therefore not convinced of the problem statement, as well as contribution. There are a few studies in 2025 too",
+    "response": "Shiino et al. (2023) is directly discussed, together with exposure-based safe deployment (2023), cascading reinforcement learning (2024), and item-centric exploration (2025). References are included for topical relevance rather than recency alone."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 5,
+    "original_number": "5",
+    "comment": "cold-start literature and safe-ranking literature are somewhat disconnected - The section presents them as separate streams, but the paper's actual novelty lies at their intersection",
+    "response": "Section 2 connects the two streams through safe exploration of previously unranked items and distinguishes item-centric audience selection from query-conditioned tail reranking."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 6,
+    "original_number": "6",
+    "comment": "Method - equations need to be cited – citations style not consistent and outdated",
+    "response": "Eight equations are numbered and referenced; entropy and ranking metrics are cited and all symbols/defaults are defined. Reference entries use a consistent author-year form."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 7,
+    "original_number": "7",
+    "comment": "TTF needs a clear experimental definition. “Number of simulated timesteps until the first click” depends heavily on how sessions, queries, impressions, and timesteps are constructed. This is not sufficiently specified in the current description.",
+    "response": "Section 3.4 defines TTF relative to arrival, with one query per timestep and right-censoring at 1,000 post-arrival steps. It includes all eligible documents, not only clicked documents, and removes misleading old percentage speedups."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 8,
+    "original_number": "8",
+    "comment": "You keep saying \"significant\" but no statistical comparison done to support this",
+    "response": "Unsupported significance language is removed. Paired seed-level tests, CIs and Holm correction are now provided."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 9,
+    "original_number": "9",
+    "comment": "The major concern is methodological clarity and reproducibility, particularly the inconsistency between the mathematically defined noisy relevance ranker and the statement that an off-the-shelf LTR model is used. The gating mechanism and some parameter definitions are also insufficiently specific",
+    "response": "The erroneous trained-LTR claim is removed. Section 3 defines the actual noisy ranker, exact gate, normalization, penalty and prefix logic. The audit also corrected code mismatches, requiring all headline results to be regenerated."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 10,
+    "original_number": "10",
+    "comment": "Tables and figures – show insert Table in main paper – how to check like this when tables are not mentioned in the paper at all?",
+    "response": "Each table is now explicitly cited in Results; tables remain separate upload files as required by the author’s submission workflow. Figure legends are included in the manuscript and supplied separately."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 11,
+    "original_number": "11",
+    "comment": "Results are reasonably comprehensive, but the evidence is not as rigorous as the claims suggest",
+    "response": "Results now include paired uncertainty, a validation/test split and stronger diagnostics. Claims are narrowed to what the corrected numerical evidence supports; large old improvements are not retained."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 12,
+    "original_number": "12",
+    "comment": "Baseline selection is somewhat weak: random injection and ε-greedy are simple; given the paper’s emphasis on safe reranking, a stronger safety-aware comparator would strengthen the claims.",
+    "response": "The comparison now includes an adjacent local-swap policy and an exposure-quota policy, alongside novelty, entropy, recency, UCB-style and Thompson heuristics. They are transparently defined rather than presented as exact BubbleRank implementations; comparison to full published algorithms remains a limitation."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 13,
+    "original_number": "13",
+    "comment": "Tuning/evaluation separation is unclear: it is not obvious whether λ selection and final evaluation use independent data/seeds.",
+    "response": "Lambda is selected on seeds 100–109 and evaluated on disjoint seeds 1000–1019. The selection criterion and complete validation outputs are saved; stress conditions do not retune lambda."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 14,
+    "original_number": "14",
+    "comment": "Look into writing style especially for Methodogy - the section itself does not begin in a proper way - insert an introduction to main sections throughout the paper to improve fluidity",
+    "response": "Methods and Results now begin with orienting paragraphs. The original section order is retained, with the additional validation and replay details placed in Sections 3.4 and 3.5."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 15,
+    "original_number": "15",
+    "comment": "Discussion - two paragraphs only?? Too short - nothing much is discussed, compare with previous studies and elaborate on what worked and what did not",
+    "response": "Discussion is expanded to interpret the smaller corrected gains, novelty-versus-entropy findings, quality-loss diagnostics and differences from prior safe methods. It also explains what the replay can and cannot establish."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 16,
+    "original_number": "16",
+    "comment": "Limitations should not be part of discussion; limitations are somewhat too focused on the simulator - explain other limitions",
+    "response": "Limitations now has its own section covering simulator assumptions, partial tuning, heuristic comparators, missing live evaluation, unavailable propensity/cold-start labels, selection bias, fairness and adversarial/updated content."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 17,
+    "original_number": "17",
+    "comment": "The real-data evaluation does not actually measure cold-start discovery, because the Yandex logs lack ground-truth cold-start labels. It mainly evaluates reranking/disruption behavior. - limitation???",
+    "response": "The absence of real cold-start ground truth is stated in the Abstract, Introduction, replay methods/results, Discussion, Limitations and Conclusion. The replay is not represented as discovery evidence."
+  },
+  {
+    "reviewer": 3,
+    "section": "Basic reporting",
+    "ordinal": 18,
+    "original_number": "18",
+    "comment": "The Conclusion is too repetitive and somewhat overstated.",
+    "response": "The Conclusion is shortened and qualified. It reports conditional simulator effects, no established general entropy advantage, and the need for stronger evaluation before deployment claims."
+  }
+]

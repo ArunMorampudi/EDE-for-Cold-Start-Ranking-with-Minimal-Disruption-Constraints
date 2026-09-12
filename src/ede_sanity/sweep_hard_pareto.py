@@ -105,7 +105,7 @@ def _plot_pareto(df: pd.DataFrame, figures_dir: Path) -> None:
     plt.title("Hard Mode: Coverage vs NDCG")
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig(figures_dir / "hard_pareto_cov_vs_ndcg.png", dpi=160)
+    plt.savefig(figures_dir / "hard_pareto_cov_vs_ndcg.png", dpi=300)
     plt.close()
 
     plt.figure(figsize=(7, 5))
@@ -117,7 +117,7 @@ def _plot_pareto(df: pd.DataFrame, figures_dir: Path) -> None:
     plt.title("Hard Mode: Unique New vs NDCG")
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig(figures_dir / "hard_pareto_unique_vs_ndcg.png", dpi=160)
+    plt.savefig(figures_dir / "hard_pareto_unique_vs_ndcg.png", dpi=300)
     plt.close()
 
 

@@ -200,7 +200,7 @@ def _plot_coverage(df: pd.DataFrame, out_path: Path) -> None:
     axes[0].set_ylabel("New Coverage")
     axes[-1].legend(fontsize=8)
     fig.tight_layout()
-    fig.savefig(out_path, dpi=200)
+    fig.savefig(out_path, dpi=300)
     plt.close(fig)
 
 

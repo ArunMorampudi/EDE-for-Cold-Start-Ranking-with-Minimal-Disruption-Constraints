@@ -96,7 +96,7 @@ def _plot_metric(df: pd.DataFrame, metric: str, std_col: str, title: str, y_labe
     plt.grid(True, alpha=0.3)
     plt.legend()
     plt.tight_layout()
-    plt.savefig(out_path, dpi=200)
+    plt.savefig(out_path, dpi=300)
     plt.close()
 
 

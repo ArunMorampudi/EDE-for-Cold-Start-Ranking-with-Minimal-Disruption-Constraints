@@ -1,0 +1,7 @@
+{
+  "source": "https://www.kaggle.com/api/v1/competitions/data/download/yandex-personalized-web-search-challenge/train.gz",
+  "sessions": 200000,
+  "lines": 941341,
+  "sha256": "896d95ca738b1f0771428647b4edf5a2c21da0b3b51c88e1a50e7de9c95a23d7",
+  "selection": "First 200000 contiguous sessions from train.gz, complete through final session; no filtering on outcomes"
+}

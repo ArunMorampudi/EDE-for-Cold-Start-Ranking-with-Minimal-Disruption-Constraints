@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "validation_runs": 100,
+  "test_runs": 3900,
+  "test_conditions": 195,
+  "replay_pages": 372282,
+  "replay_sessions": 200000,
+  "reviewer_comments": 65,
+  "docx_files": 11,
+  "numbered_equations": 8,
+  "prefix_violations": 0,
+  "tracked_changes": 463,
+  "accept_matches_clean": true,
+  "reject_matches_original": true,
+  "pending_author_items": [
+    "Funding declaration",
+    "Competing-interest declaration",
+    "Original AI prompt-log reconciliation",
+    "New Zenodo version DOI"
+  ],
+  "limitations": [
+    "Heuristic comparators are not exact reproductions of published safe-ranking algorithms",
+    "No causal or real cold-start claims from replay",
+    "Title and conclusions require author scientific review"
+  ]
+}
