@@ -18,7 +18,7 @@ finally {
         [void][System.Runtime.InteropServices.Marshal]::ReleaseComObject($doc)
     }
     if ($word -ne $null) {
-        $word.Quit($false)
+        $word.Quit()
         [void][System.Runtime.InteropServices.Marshal]::ReleaseComObject($word)
     }
     [GC]::Collect()

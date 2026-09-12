@@ -31,7 +31,7 @@ requirement and is not needed when PeerJ requests only a clean manuscript.
 ## Before upload
 
 1. Confirm that the no-funding and no-competing-interests declarations are accurate.
-2. Reconcile the AI-use wording with the complete supplementary prompt record.
+2. Confirm that the AI-use wording matches the complete supplementary prompt record.
 3. Cite the deposited replication archive at https://doi.org/10.5281/zenodo.22726688 in the submission metadata if requested.
 4. Upload the tracked-changes manuscript only if the PeerJ portal requests it.
 

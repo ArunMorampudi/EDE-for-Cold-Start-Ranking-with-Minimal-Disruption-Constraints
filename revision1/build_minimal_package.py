@@ -47,6 +47,15 @@ FUNDING_TEXT = (
 
 COMPETING_INTERESTS_TEXT = "The authors declare that they have no competing interests."
 
+AI_DISCLOSURE_TEXT = (
+    "During the preparation of this work, the authors used generative AI tools, "
+    "including ChatGPT-5.2 and GitHub Copilot, for manuscript editing and for "
+    "assistance with drafting, refactoring, and development of analysis, experiment, "
+    "and replay code. The authors reviewed the resulting code, references, and "
+    "numerical outputs and take responsibility for the final content. AI tools were "
+    "not used to fabricate data or results."
+)
+
 
 def clear_paragraph(paragraph: object) -> None:
     p = paragraph._p
@@ -105,16 +114,7 @@ def revise_manuscript() -> None:
     # actual scope of the revision work. Do not rewrite surrounding prose.
     for p in doc.paragraphs:
         if p.text.strip().startswith("During the preparation of this work"):
-            replace_plain_paragraph(
-                p,
-                "During the preparation of this work, the authors used generative "
-                "AI tools, including ChatGPT-5.2 and GitHub Copilot, for manuscript "
-                "editing and for assistance with code drafting, refactoring, and "
-                "analysis-script development. The authors reviewed the resulting "
-                "code, references, and numerical outputs and take responsibility "
-                "for the final content. AI tools were not used to fabricate data or "
-                "results."
-            )
+            replace_plain_paragraph(p, AI_DISCLOSURE_TEXT)
             break
 
     # The earlier draft cited Han et al. (2011), but that work is not in the
@@ -126,7 +126,7 @@ def revise_manuscript() -> None:
             break
 
     # Update only the version reference in Section 3.5 now that the corrected
-    # replication archive has its version-specific DOI. Leave Section 3.6 intact.
+    # replication archive has its version-specific DOI.
     reproducibility_body = next(
         p for p in doc.paragraphs
         if p.text.strip().startswith("The full experimental framework, including the EDE reranking policy")
@@ -140,6 +140,32 @@ def revise_manuscript() -> None:
     )
     replace_plain_paragraph(reproducibility_body, reproducibility_text)
 
+    # Add concise rationale for the fixed defaults without implying that all
+    # parameters were jointly optimized.
+    defaults_body = next(
+        p for p in doc.paragraphs
+        if p.text.strip().startswith("Here s_norm is a rank-normalized base score")
+    )
+    defaults_old = (
+        "Our default parameters are λ=0.4, η=0.65, m=2, top_L=50, α=0.5, and "
+        "τ=50 impressions. “Hard mode” denotes p>0 applied before gating and "
+        "retained in the tail; p=0 removes this penalty."
+    )
+    defaults_new = (
+        "Our default parameters are λ=0.4, η=0.65, m=2, top_L=50, α=0.5, and "
+        "τ=50 impressions. These defaults are interpretable starting points rather "
+        "than a jointly optimized set: α=0.5 provides symmetric pseudocount "
+        "smoothing, τ=50 supplies the exposure-decay scale, m=2 protects the first "
+        "two ranks while retaining eight tail positions, and top_L=50 bounds the "
+        "candidate pool. η=0.65 is examined in the held-out sensitivity sweep, "
+        "whereas λ is the only parameter selected by the validation rule. “Hard mode” "
+        "denotes p>0 applied before gating and retained in the tail; p=0 removes this "
+        "penalty."
+    )
+    if defaults_old not in defaults_body.text:
+        raise ValueError("Expected default-parameter sentence was not found")
+    replace_plain_paragraph(defaults_body, defaults_body.text.replace(defaults_old, defaults_new))
+
     # Funding and competing-interest statements are factual author declarations.
     target = next(p for p in doc.paragraphs if p.text.strip() == "Data Availability")
     if not any(p.text.strip() == "Funding" for p in doc.paragraphs):
@@ -151,11 +177,94 @@ def revise_manuscript() -> None:
         insert_before_clean(target, COMPETING_INTERESTS_TEXT, "Normal")
 
     # Point the manuscript to the exact existing Zenodo archive and describe the
-    # corrected archive supplied for the next version. Section 3.6 is not edited.
+    # corrected archive supplied for the next version.
     data_body = next(
         p for p in doc.paragraphs if p.text.strip().startswith("The original code archive is")
     )
     replace_plain_paragraph(data_body, DATA_AVAILABILITY_TEXT)
+
+    # Use the verified per-penalty estimates rather than rounded values that make
+    # the p=0.15 and p=0.30 intervals appear duplicated.
+    sweep_body = next(
+        p for p in doc.paragraphs
+        if p.text.strip().startswith("We first tuned λ")
+    )
+    sweep_old = "ΔNDCG of −0.0026 [−0.0041, −0.0011] at p=0.15"
+    sweep_new = "ΔNDCG of −0.00262 [−0.00410, −0.00114] at p=0.15"
+    if sweep_old not in sweep_body.text:
+        raise ValueError("Expected p=0.15 NDCG sentence was not found")
+    replace_plain_paragraph(sweep_body, sweep_body.text.replace(sweep_old, sweep_new))
+
+    difficulty_body = next(
+        p for p in doc.paragraphs
+        if p.text.strip().startswith("Figure 1a plots new-doc coverage")
+    )
+    difficulty_old = "paired ΔNDCG at p=0.30 of −0.0026 [95% CI −0.0041, −0.0011]"
+    difficulty_new = "paired ΔNDCG at p=0.30 of −0.00263 [95% CI −0.00415, −0.00110]"
+    if difficulty_old not in difficulty_body.text:
+        raise ValueError("Expected p=0.30 NDCG sentence was not found")
+    replace_plain_paragraph(difficulty_body, difficulty_body.text.replace(difficulty_old, difficulty_new))
+
+    results_intro = next(
+        p for p in doc.paragraphs
+        if p.text.strip().startswith("We report corrected simulation results first")
+    )
+    replace_plain_paragraph(
+        results_intro,
+        results_intro.text.replace(
+            "all tables are supplied separately.",
+            "all tables and figure legends are supplied separately.",
+        ),
+    )
+
+    replay_results = next(
+        p for p in doc.paragraphs
+        if p.text.strip().startswith("Ranking-change diagnostics distinguish exact-match")
+    )
+    replay_suffix = (
+        " The logs do not provide semantic query-category annotations, so we do not "
+        "claim that movements concentrate in particular query or session types."
+    )
+    if "semantic query-category annotations" not in replay_results.text:
+        replace_plain_paragraph(replay_results, replay_results.text + replay_suffix)
+
+    limitations_body = next(
+        p for p in doc.paragraphs
+        if p.text.strip().startswith("Only λ is validated;")
+    )
+    limitations_suffix = (
+        " Exact-match accepted pages are selected by the acceptance criterion, so "
+        "their conditional click and displacement statistics are not representative "
+        "of all replay pages or live traffic."
+    )
+    if "Exact-match accepted pages" not in limitations_body.text:
+        replace_plain_paragraph(limitations_body, limitations_body.text + limitations_suffix)
+
+    discussion_addition = (
+        "These results suggest that novelty can outperform entropy when exposure is "
+        "the dominant missing signal: the gate and base-rank penalty provide enough "
+        "structure for a simple exposure bonus to reach cold-start items without "
+        "adding noisy click variation. Entropy may still be useful when recent clicks "
+        "distinguish uncertain candidates within an otherwise comparable tail, "
+        "particularly after sufficient impressions and with smoothing; its benefit "
+        "should therefore be evaluated by query type and feedback quality rather than "
+        "assumed. Unlike BubbleRank and Shiino et al. (2023), EDE uses aggregate "
+        "document counters and deterministic structural constraints instead of "
+        "pairwise evidence or confidence bounds, so it is simpler to layer on a fixed "
+        "ranker but provides weaker statistical and safety guarantees. The severe-"
+        "penalty results define an operating boundary: when the base ranker nearly "
+        "excludes new items before the gated tail is formed, a tail reranker cannot "
+        "recover exposure without relaxing the gate or changing the upstream ranker."
+    )
+    if not any(
+        p.text.strip().startswith("These results suggest that novelty can outperform entropy")
+        for p in doc.paragraphs
+    ):
+        replay_discussion = next(
+            p for p in doc.paragraphs
+            if p.text.strip().startswith("The real-log replay provides a narrower")
+        )
+        insert_after_clean(replay_discussion, discussion_addition, "Normal")
 
     # Keep the output clean: no inline figures, tables, tracked changes, or
     # comments. The separate upload assets carry the visuals and table grids.
@@ -199,11 +308,12 @@ def revise_response_letter() -> None:
                 f"corrected minimal replication archive at {ZENODO_DOI}. The archive "
                 "contains the revised source modules, focused tests, pinned requirements, "
                 "protocol, per-seed and replay results, acquisition script, and SHA-256 "
-                "manifest. The manuscript now states that the work "
-                "received no specific funding and that the authors have no competing "
-                "interests. Section 3.6 is unchanged in this revision; the authors "
-                "will reconcile its wording with the complete AI prompt record before "
-                "submission."
+                "manifest. The manuscript now states that the work received no specific "
+                "funding and that the authors have no competing interests. Section 3.6 "
+                "has been expanded to disclose manuscript editing and assistance with "
+                "drafting, refactoring, and development of analysis, experiment, and "
+                "replay code, followed by author review of the resulting code, references, "
+                "and numerical outputs."
             )
         elif p.text.strip().startswith("Response. Section 3.5 and Data Availability print"):
             replace_plain_paragraph(
@@ -215,6 +325,51 @@ def revise_response_letter() -> None:
                 "manuscript files, paper-asset builders, the separate utils repository, "
                 "and raw logs."
             )
+        elif p.text.strip().startswith("Response. Section 3.4 prespecifies lambda selection"):
+            replace_plain_paragraph(
+                p,
+                "Response. Section 3.3 now explains the rationale for the fixed defaults: "
+                "symmetric α=0.5 smoothing, τ=50 exposure decay, m=2 protected ranks "
+                "with eight tail positions, and top_L=50 bounded candidate gating. "
+                "Lambda is selected on seeds 100–109 and tested only on seeds 1000–1019. "
+                "The other defaults are not claimed to be jointly optimized; they are "
+                "examined through held-out sensitivity and ablation results."
+            )
+        elif p.text.strip().startswith("Response. Table 6 separates exact-match accepted"):
+            replace_plain_paragraph(
+                p,
+                "Response. Table 6 separates exact-match accepted and rejected pages and "
+                "reports their observed click/displacement metrics. Set/click preservation "
+                "has no rejected pages because the corrected candidate set contains exactly "
+                "the logged ten. The logs do not provide semantic query-category annotations "
+                "that would support a reliable concentration analysis by query or session "
+                "type, so we do not claim that analysis. Exact-match accepted-page statistics "
+                "are conditional on the acceptance criterion and may not represent rejected "
+                "pages or live traffic. Hypothetical clicked-document shifts are retained "
+                "in the summary."
+            )
+    figure_response = next(
+        p for p in doc.paragraphs
+        if p.text.strip().startswith("Response. Each table is now explicitly cited in Results")
+    )
+    replace_plain_paragraph(
+        figure_response,
+        "Response. Each table is now explicitly cited in Results; tables remain separate "
+        "upload files as required by the author’s submission workflow. Figure files and "
+        "legends are supplied separately; the manuscript does not claim that the separate "
+        "legends are duplicated in the body."
+    )
+    discussion_response = next(
+        p for p in doc.paragraphs
+        if p.text.strip().startswith("Response. Discussion is expanded")
+    )
+    replace_plain_paragraph(
+        discussion_response,
+        "Response. Discussion is expanded to interpret the smaller corrected gains, why "
+        "novelty-only can outperform entropy, when entropy may still help, the distinction "
+        "from BubbleRank and Shiino et al., the severe-penalty operating boundary, "
+        "quality-loss diagnostics and what the replay can and cannot establish."
+    )
     doc.save(OUT / "cs-134580-response-to-reviewers.docx")
 
 
@@ -254,12 +409,7 @@ def create_statements_doc() -> None:
         ),
         (
             "Use of AI-assisted tools",
-            "The authors used generative AI tools, including ChatGPT-5.2 and GitHub "
-            "Copilot, for manuscript editing and for assistance with code drafting, "
-            "refactoring, and analysis-script development. The authors reviewed the "
-            "resulting code, references, and numerical outputs and take responsibility "
-            "for the final content. AI tools were not used to fabricate data or results. "
-            "Reconcile this wording with the complete supplementary prompt record before upload.",
+            AI_DISCLOSURE_TEXT,
         ),
     ]
     for heading, body in sections:
@@ -326,6 +476,20 @@ def shorten_caption_and_note_docs() -> None:
                 replace_plain_paragraph(p, text)
                 break
     figure_doc.save(OUT / "cs-134580-Figure-legends.docx")
+
+    # Preserve the distinct verified held-out estimates instead of displaying
+    # both penalty rows with the same rounded interval.
+    table1_doc = Document(OUT / "cs-134580-Table1.docx")
+    table1 = table1_doc.tables[0]
+    for row in table1.rows:
+        if len(row.cells) < 5 or row.cells[0].text.strip() != "Held-out":
+            continue
+        penalty = row.cells[1].text.strip()
+        if penalty == "0.15":
+            replace_plain_paragraph(row.cells[4].paragraphs[0], "-0.00262 [-0.00410, -0.00114]")
+        elif penalty == "0.30":
+            replace_plain_paragraph(row.cells[4].paragraphs[0], "-0.00263 [-0.00415, -0.00110]")
+    table1_doc.save(OUT / "cs-134580-Table1.docx")
 
     notes_doc = Document(OUT / "cs-134580-Table-titles-and-notes.docx")
     note_text = {
